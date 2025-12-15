@@ -1,5 +1,5 @@
 pyrogram==2.0.106
-pytgcalls==3.1.0 # your other dependencies...
+pytgcalls==3.1.0
 tgcrypto
 python-dotenv
 yt-dlp
