@@ -1,14 +1,12 @@
-FROM python:3.9-slim
+FROM nikolaik/python-nodejs:python3.10-nodejs19
 
-WORKDIR /app
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ffmpeg \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies first
-COPY requirements.txt .
-RUN pip install --no-cache-dir \
-    pyrogram==2.0.106 \
-    pytgcalls==3.1.0
+COPY . /app/
+WORKDIR /app/
+RUN pip3 install --no-cache-dir -U -r requirements.txt
 
-# Copy your application code
-COPY . .
-
-CMD ["python", "main.py"]
+CMD bash start
