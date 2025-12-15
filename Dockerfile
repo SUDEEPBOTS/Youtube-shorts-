@@ -1,9 +1,9 @@
-# Python 3.9 use kar rahe hain (Ispe py-tgcalls error nahi deta)
-FROM python:3.9-slim-buster
+# 'buster' expire ho gaya, isliye 'bullseye' use kar rahe hain
+FROM python:3.9-slim-bullseye
 
 WORKDIR /app
 
-# Basic tools
+# Basic tools install kar rahe hain
 RUN apt-get update && apt-get install -y ffmpeg git build-essential && apt-get clean
 
 COPY . .
