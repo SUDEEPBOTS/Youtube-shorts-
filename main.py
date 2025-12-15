@@ -11,28 +11,29 @@ from yt_dlp import YoutubeDL
 API_ID = int(os.getenv("API_ID"))
 API_HASH = os.getenv("API_HASH")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-SESSION_STRING = os.getenv("SESSION_STRING") # <-- Ye zaroori hai ab
+SESSION_STRING = os.getenv("SESSION_STRING") # <-- Assistant ka session
 
 # --- CLIENTS SETUP ---
-# 1. Bot Client (Commands ke liye)
+# 1. Bot Client (Message padhne ke liye)
 bot = Client("Bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 # 2. Assistant Client (Call Join karne ke liye)
+# Agar string session nahi hai toh ye crash hoga, isliye zaroori hai.
 user = Client("Userbot", api_id=API_ID, api_hash=API_HASH, session_string=SESSION_STRING)
 
-# 3. PyTgCalls (User Client ko use karega)
+# 3. PyTgCalls (User ko use karega call ke liye)
 call = PyTgCalls(user)
 
 # --- BUTTONS ---
 def get_controls():
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("⏭ Agla Short (Next)", callback_data="next")],
-        [InlineKeyboardButton("⏹ Band Karo (Stop)", callback_data="stop")]
+        [InlineKeyboardButton("⏭ Next Short", callback_data="next")],
+        [InlineKeyboardButton("⏹ Stop", callback_data="stop")]
     ])
 
 # --- YOUTUBE DOWNLOADER ---
 def get_random_short(chat_id):
-    queries = ["trending shorts", "viral shorts", "funny shorts", "dance shorts"]
+    queries = ["trending shorts", "viral funny shorts", "dance shorts", "lofi shorts"]
     query = random.choice(queries)
     
     ydl_opts = {
@@ -57,8 +58,7 @@ def get_random_short(chat_id):
             video_url = video_entry['webpage_url']
             title = video_entry.get('title', 'Short Video')
             
-            print(f"⬇️ Downloading: {title}")
-            
+            # File cleanup
             filename = f"downloads/short_{chat_id}.mp4"
             if os.path.exists(filename):
                 os.remove(filename)
@@ -75,9 +75,8 @@ def get_random_short(chat_id):
 @bot.on_message(filters.command("play") & filters.group)
 async def play_cmd(client, message):
     chat_id = message.chat.id
-    msg = await message.reply_text("🔄 **Assistant join kar raha hai...**")
+    msg = await message.reply_text("🔄 **Assistant Joining...**")
 
-    # Download karo
     filename, title = await asyncio.to_thread(get_random_short, chat_id)
 
     if not filename:
@@ -87,7 +86,7 @@ async def play_cmd(client, message):
     await msg.edit_text(f"▶️ **Playing:** {title}", reply_markup=get_controls())
 
     try:
-        # Userbot call join karega
+        # Userbot join karega
         await call.join_group_call(
             chat_id,
             MediaStream(video=filename, audio=filename)
@@ -105,11 +104,10 @@ async def play_cmd(client, message):
 async def stop_cmd(client, message):
     try:
         await call.leave_group_call(message.chat.id)
-        await message.reply_text("✅ **Assistant Left.**")
+        await message.reply_text("✅ **Stopped.**")
     except:
         await message.reply_text("❌ Assistant call mein nahi hai.")
 
-# --- BUTTONS ---
 @bot.on_callback_query()
 async def handle_buttons(client, cb):
     data = cb.data
@@ -121,12 +119,10 @@ async def handle_buttons(client, cb):
             await cb.message.delete()
         except:
             pass
-        return
 
     if data == "next":
         await cb.answer("🔄 Loading Next...")
         filename, title = await asyncio.to_thread(get_random_short, chat_id)
-        
         if filename:
             try:
                 await call.change_stream(
@@ -139,16 +135,15 @@ async def handle_buttons(client, cb):
 
 # --- STARTUP ---
 async def start_bot():
-    print("🚀 Starting Bot & Assistant...")
+    print("🚀 Starting Bot & Userbot...")
     await bot.start()
     await user.start()
     await call.start()
-    print("✅ System Online!")
-    await asyncio.get_event_loop().create_future() # Keep running
+    print("✅ Bot Ready!")
+    await asyncio.get_event_loop().create_future()
 
 if __name__ == "__main__":
     if not os.path.exists("downloads"):
         os.makedirs("downloads")
-    
     asyncio.run(start_bot())
     
