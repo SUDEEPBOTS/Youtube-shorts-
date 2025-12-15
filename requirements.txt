@@ -1,0 +1,6 @@
+pyrogram
+tgcrypto
+py-tgcalls==3.0.0.dev24
+python-dotenv
+yt-dlp
+requests
