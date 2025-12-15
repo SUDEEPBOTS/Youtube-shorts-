@@ -1,16 +1,12 @@
-# 'buster' expire ho gaya, isliye 'bullseye' use kar rahe hain
-FROM python:3.9-slim-bullseye
+FROM python:3.9-slim
 
 WORKDIR /app
 
-# Basic tools install kar rahe hain
-RUN apt-get update && apt-get install -y ffmpeg git build-essential && apt-get clean
+# Copy requirements first
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
+# Then copy the rest of your app
 COPY . .
 
-RUN pip install --no-cache-dir --upgrade pip
-RUN pip install av
-RUN pip install -r requirements.txt
-
-CMD ["python3", "main.py"]
-
+CMD ["python", "main.py"]
