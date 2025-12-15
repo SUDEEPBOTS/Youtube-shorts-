@@ -1,14 +1,15 @@
-FROM python:3.10-slim-bookworm
+# Python 3.9 use kar rahe hain (Ispe py-tgcalls error nahi deta)
+FROM python:3.9-slim-buster
 
 WORKDIR /app
 
-# UPDATE: 'build-essential' add kiya hai taaki gcc error na aaye
+# Basic tools
 RUN apt-get update && apt-get install -y ffmpeg git build-essential && apt-get clean
 
 COPY . .
 
 RUN pip install --no-cache-dir --upgrade pip
-RUN pip install av==12.0.0
+RUN pip install av
 RUN pip install -r requirements.txt
 
 CMD ["python3", "main.py"]
