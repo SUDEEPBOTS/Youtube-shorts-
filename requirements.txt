@@ -1,8 +1,7 @@
 pyrogram
 tgcrypto
-git+https://github.com/pytgcalls/pytgcalls.git
+py-tgcalls
 python-dotenv
 yt-dlp
 requests
-netifaces
 
